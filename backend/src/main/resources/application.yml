@@ -1,0 +1,27 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: kkd-tracker-backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/kkd_db}
+    username: ${DB_USER:kkd_user}
+    password: ${DB_PASSWORD:kkd_secret}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+logging:
+  level:
+    root: INFO
+    ru.sber.kkd: DEBUG

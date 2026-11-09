@@ -1,0 +1,926 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="002-seed-rules-and-units" author="kkd-team">
+        <comment>Seed rules, organizational units and demo data</comment>
+
+        <!-- Rules -->
+        <insert tableName="kkd_rules">
+            <column name="code" value="GOAL_NO_OWNER"/>
+            <column name="object_type" value="goal"/>
+            <column name="severity" value="critical"/>
+            <column name="title" value="Цель без ответственного"/>
+            <column name="description" value="У активной цели не указан ответственный сотрудник."/>
+            <column name="recommendation" value="Назначить ответственного за цель в модуле «Цели»."/>
+        </insert>
+        <insert tableName="kkd_rules">
+            <column name="code" value="GOAL_NO_KR"/>
+            <column name="object_type" value="goal"/>
+            <column name="severity" value="critical"/>
+            <column name="title" value="Цель без ключевых результатов"/>
+            <column name="description" value="У активной цели нет ни одного ключевого результата."/>
+            <column name="recommendation" value="Добавить 1–5 измеримых ключевых результатов."/>
+        </insert>
+        <insert tableName="kkd_rules">
+            <column name="code" value="KR_WEIGHTS_SUM"/>
+            <column name="object_type" value="goal"/>
+            <column name="severity" value="major"/>
+            <column name="title" value="Сумма весов КР не равна 100%"/>
+            <column name="description" value="Сумма весов ключевых результатов цели отличается от 100%."/>
+            <column name="recommendation" value="Перераспределить веса КР так, чтобы сумма была ровно 100%."/>
+        </insert>
+        <insert tableName="kkd_rules">
+            <column name="code" value="CASCADE_NO_PARENT"/>
+            <column name="object_type" value="goal"/>
+            <column name="severity" value="major"/>
+            <column name="title" value="Цель не связана с вышестоящей"/>
+            <column name="description" value="Цель департамента, подразделения или сотрудника не привязана к цели вышестоящего уровня."/>
+            <column name="recommendation" value="Указать родительскую цель вышестоящего уровня."/>
+        </insert>
+        <insert tableName="kkd_rules">
+            <column name="code" value="KR_NO_TARGET"/>
+            <column name="object_type" value="key_result"/>
+            <column name="severity" value="major"/>
+            <column name="title" value="КР без целевого значения"/>
+            <column name="description" value="У ключевого результата не заполнено целевое значение."/>
+            <column name="recommendation" value="Заполнить целевое значение КР."/>
+        </insert>
+        <insert tableName="kkd_rules">
+            <column name="code" value="KR_STALE_PROGRESS"/>
+            <column name="object_type" value="key_result"/>
+            <column name="severity" value="minor"/>
+            <column name="title" value="Прогресс КР давно не обновлялся"/>
+            <column name="description" value="Фактическое значение КР не обновлялось более 45 дней."/>
+            <column name="recommendation" value="Обновить фактическое значение КР."/>
+        </insert>
+
+        <!-- Units -->
+        <insert tableName="organizational_units">
+            <column name="id" value="B2B"/>
+            <column name="name" value="Корпоративный блок"/>
+            <column name="level" value="block"/>
+            <column name="parent_id" valueComputed="NULL"/>
+            <column name="depth" valueNumeric="0"/>
+        </insert>
+        <insert tableName="organizational_units">
+            <column name="id" value="HQ-CIB"/>
+            <column name="name" value="Департамент корпоративного бизнеса"/>
+            <column name="level" value="hq"/>
+            <column name="parent_id" value="B2B"/>
+            <column name="depth" valueNumeric="1"/>
+        </insert>
+        <insert tableName="organizational_units">
+            <column name="id" value="CIB-KEY"/>
+            <column name="name" value="Управление по работе с ключевыми клиентами"/>
+            <column name="level" value="unit"/>
+            <column name="parent_id" value="HQ-CIB"/>
+            <column name="depth" valueNumeric="2"/>
+        </insert>
+        <insert tableName="organizational_units">
+            <column name="id" value="HQ-SME"/>
+            <column name="name" value="Департамент малого и среднего бизнеса"/>
+            <column name="level" value="hq"/>
+            <column name="parent_id" value="B2B"/>
+            <column name="depth" valueNumeric="1"/>
+        </insert>
+        <insert tableName="organizational_units">
+            <column name="id" value="TX-NEW"/>
+            <column name="name" value="Отдел платёжных сервисов"/>
+            <column name="level" value="unit"/>
+            <column name="parent_id" value="B2B"/>
+            <column name="depth" valueNumeric="1"/>
+        </insert>
+
+        <!-- Goals: 24 goals -->
+        <!-- Root goal (block) -->
+        <insert tableName="goals">
+            <column name="id" value="GOAL-001"/>
+            <column name="title" value="Увеличить чистую прибыль блока B2B на 18% к концу года"/>
+            <column name="level" value="block"/>
+            <column name="unit_id" value="B2B"/>
+            <column name="owner_id" value="EMP-1001"/>
+            <column name="owner_name" value="Иванов Алексей Петрович"/>
+            <column name="parent_id" valueComputed="NULL"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+
+        <!-- HQ-CIB Goals -->
+        <insert tableName="goals">
+            <column name="id" value="GOAL-002"/>
+            <column name="title" value="Масштабировать портфель корпоративного кредитования CIB до 1.5 трлн руб"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-CIB"/>
+            <column name="owner_id" value="EMP-1002"/>
+            <column name="owner_name" value="Смирнова Елена Сергеевна"/>
+            <column name="parent_id" value="GOAL-001"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-003"/>
+            <column name="title" value="Запустить синдицированные кредиты в нацвалютах"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-CIB"/>
+            <column name="owner_id" value="EMP-1003"/>
+            <column name="owner_name" value="Кузнецов Дмитрий Олегович"/>
+            <column name="parent_id" value="GOAL-001"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-004"/>
+            <column name="title" value="Снизить среднее время согласования крупных сделок до 5 дней"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-CIB"/>
+            <column name="owner_id" value="EMP-1004"/>
+            <column name="owner_name" value="Морозова Ольга Викторовна"/>
+            <column name="parent_id" value="GOAL-001"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <!-- Defect GOAL_NO_OWNER -->
+        <insert tableName="goals">
+            <column name="id" value="GOAL-005"/>
+            <column name="title" value="Оптимизация кредитного конвейера для крупного бизнеса"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-CIB"/>
+            <column name="owner_id" valueComputed="NULL"/>
+            <column name="owner_name" valueComputed="NULL"/>
+            <column name="parent_id" value="GOAL-001"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+
+        <!-- CIB-KEY Goals (child of HQ-CIB) -->
+        <!-- Defect GOAL_NO_KR -->
+        <insert tableName="goals">
+            <column name="id" value="GOAL-006"/>
+            <column name="title" value="Провести стратегические сессии с ТОП-20 холдингами"/>
+            <column name="level" value="unit"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1005"/>
+            <column name="owner_name" value="Соколов Андрей Владимирович"/>
+            <column name="parent_id" value="GOAL-002"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <!-- Defect KR_WEIGHTS_SUM (sum = 80%) -->
+        <insert tableName="goals">
+            <column name="id" value="GOAL-007"/>
+            <column name="title" value="Привлечь 5 новых ключевых клиентов в секторе ритейл"/>
+            <column name="level" value="unit"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1006"/>
+            <column name="owner_name" value="Попова Екатерина Ильинична"/>
+            <column name="parent_id" value="GOAL-002"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <!-- Defect CASCADE_NO_PARENT (parent_id is null for unit goal) -->
+        <insert tableName="goals">
+            <column name="id" value="GOAL-008"/>
+            <column name="title" value="Внедрить аналитический дашборд покрытия клиентской базы"/>
+            <column name="level" value="unit"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1007"/>
+            <column name="owner_name" value="Васильев Роман Сергеевич"/>
+            <column name="parent_id" valueComputed="NULL"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <!-- Goal with KR_NO_TARGET (new defect in RUN-002) -->
+        <insert tableName="goals">
+            <column name="id" value="GOAL-009"/>
+            <column name="title" value="Разработать отраслевые предложения для агропрома"/>
+            <column name="level" value="unit"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1008"/>
+            <column name="owner_name" value="Новиков Павел Анатольевич"/>
+            <column name="parent_id" value="GOAL-002"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <!-- Clean goals in CIB-KEY -->
+        <insert tableName="goals">
+            <column name="id" value="GOAL-010"/>
+            <column name="title" value="Повысить уровень удовлетворенности клиентов CSI до 92%"/>
+            <column name="level" value="unit"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1009"/>
+            <column name="owner_name" value="Федорова Мария Николаевна"/>
+            <column name="parent_id" value="GOAL-004"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-011"/>
+            <column name="title" value="Заключить генеральные соглашения по факторингу"/>
+            <column name="level" value="unit"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1010"/>
+            <column name="owner_name" value="Михайлов Виктор Семенович"/>
+            <column name="parent_id" value="GOAL-002"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-012"/>
+            <column name="title" value="Расширить линейку продуктов хеджирования валютных рисков"/>
+            <column name="level" value="unit"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1011"/>
+            <column name="owner_name" value="Семенов Кирилл Игоревич"/>
+            <column name="parent_id" value="GOAL-003"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+
+        <!-- HQ-SME Goals -->
+        <insert tableName="goals">
+            <column name="id" value="GOAL-013"/>
+            <column name="title" value="Увеличить активную клиентскую базу МСП на 25%"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2001"/>
+            <column name="owner_name" value="Тарасов Денис Евгеньевич"/>
+            <column name="parent_id" value="GOAL-001"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-014"/>
+            <column name="title" value="Сократить срок открытия расчетного счета до 15 минут онлайн"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2002"/>
+            <column name="owner_name" value="Белова Анна Сергеевна"/>
+            <column name="parent_id" value="GOAL-001"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-015"/>
+            <column name="title" value="Запустить цифровой овердрафт без визита в офис"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2003"/>
+            <column name="owner_name" value="Григорьев Артем Юрьевич"/>
+            <column name="parent_id" value="GOAL-001"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <!-- Goal GOAL-016: was defect in RUN-001, FIXED in RUN-002 -> test resolved issue! -->
+        <insert tableName="goals">
+            <column name="id" value="GOAL-016"/>
+            <column name="title" value="Повысить проникновение эквайринга в сегменте микробизнеса"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2004"/>
+            <column name="owner_name" value="Лазарев Максим Борисович"/>
+            <column name="parent_id" value="GOAL-001"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-017"/>
+            <column name="title" value="Внедрить сервис онлайн-бухгалтерии в интернет-банке"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2005"/>
+            <column name="owner_name" value="Ковалева Светлана Павловна"/>
+            <column name="parent_id" value="GOAL-013"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-018"/>
+            <column name="title" value="Оптимизировать тарифную сетку РКО для самозанятых"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2006"/>
+            <column name="owner_name" value="Зайцев Константин Михайлович"/>
+            <column name="parent_id" value="GOAL-013"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-019"/>
+            <column name="title" value="Увеличить объем выдачи льготных кредитов МСП на 30%"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2007"/>
+            <column name="owner_name" value="Орлов Даниил Валерьевич"/>
+            <column name="parent_id" value="GOAL-013"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-020"/>
+            <column name="title" value="Автоматизировать процесс комплаенс-контроля 115-ФЗ"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2008"/>
+            <column name="owner_name" value="Макарова Екатерина Александровна"/>
+            <column name="parent_id" value="GOAL-014"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-021"/>
+            <column name="title" value="Запустить партнерскую программу с регистраторами бизнеса"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2009"/>
+            <column name="owner_name" value="Андреев Станислав Викторович"/>
+            <column name="parent_id" value="GOAL-013"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-022"/>
+            <column name="title" value="Повысить индекс лояльности NPS клиентов малого бизнеса до 68"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2010"/>
+            <column name="owner_name" value="Богданова Вероника Сергеевна"/>
+            <column name="parent_id" value="GOAL-014"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-023"/>
+            <column name="title" value="Запустить мобильный эквайринг SoftPOS"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2011"/>
+            <column name="owner_name" value="Горбунов Игорь Васильевич"/>
+            <column name="parent_id" value="GOAL-015"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+        <insert tableName="goals">
+            <column name="id" value="GOAL-024"/>
+            <column name="title" value="Провести маркетинговую кампанию «Бизнес-старт»"/>
+            <column name="level" value="hq"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2012"/>
+            <column name="owner_name" value="Киселева Дарья Игоревна"/>
+            <column name="parent_id" value="GOAL-013"/>
+            <column name="status" value="active"/>
+            <column name="deadline" valueDate="2026-12-31"/>
+        </insert>
+
+        <!-- Key Results -->
+        <!-- GOAL-001 KRs -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-001"/>
+            <column name="goal_id" value="GOAL-001"/>
+            <column name="title" value="Чистый комиссионный доход"/>
+            <column name="target_value" valueNumeric="120000.00"/>
+            <column name="fact_value" valueNumeric="98000.00"/>
+            <column name="metric_unit" value="млн руб."/>
+            <column name="weight" valueNumeric="50.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-25"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-002"/>
+            <column name="goal_id" value="GOAL-001"/>
+            <column name="title" value="Чистый процентный доход"/>
+            <column name="target_value" valueNumeric="340000.00"/>
+            <column name="fact_value" valueNumeric="310000.00"/>
+            <column name="metric_unit" value="млн руб."/>
+            <column name="weight" valueNumeric="50.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-25"/>
+        </insert>
+
+        <!-- GOAL-002 KRs -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-003"/>
+            <column name="goal_id" value="GOAL-002"/>
+            <column name="title" value="Объем кредитного портфеля CIB"/>
+            <column name="target_value" valueNumeric="1500.00"/>
+            <column name="fact_value" valueNumeric="1380.00"/>
+            <column name="metric_unit" value="млрд руб."/>
+            <column name="weight" valueNumeric="60.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-24"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-004"/>
+            <column name="goal_id" value="GOAL-002"/>
+            <column name="title" value="Доля просроченной задолженности (NPL90+)"/>
+            <column name="target_value" valueNumeric="1.20"/>
+            <column name="fact_value" valueNumeric="0.95"/>
+            <column name="metric_unit" value="%"/>
+            <column name="weight" valueNumeric="40.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-24"/>
+        </insert>
+
+        <!-- GOAL-003 KRs -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-005"/>
+            <column name="goal_id" value="GOAL-003"/>
+            <column name="title" value="Количество закрытых синдицированных сделок"/>
+            <column name="target_value" valueNumeric="10.00"/>
+            <column name="fact_value" valueNumeric="7.00"/>
+            <column name="metric_unit" value="шт."/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-22"/>
+        </insert>
+
+        <!-- GOAL-004 KRs -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-006"/>
+            <column name="goal_id" value="GOAL-004"/>
+            <column name="title" value="Средний срок согласования сделки"/>
+            <column name="target_value" valueNumeric="5.00"/>
+            <column name="fact_value" valueNumeric="6.20"/>
+            <column name="metric_unit" value="дней"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-21"/>
+        </insert>
+
+        <!-- GOAL-005 KRs (Goal has NO owner) -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-007"/>
+            <column name="goal_id" value="GOAL-005"/>
+            <column name="title" value="Доля автоматических предодобрений"/>
+            <column name="target_value" valueNumeric="45.00"/>
+            <column name="fact_value" valueNumeric="30.00"/>
+            <column name="metric_unit" value="%"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-20"/>
+        </insert>
+
+        <!-- GOAL-007 KRs: weights 40 + 40 = 80% (KR_WEIGHTS_SUM) -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-008"/>
+            <column name="goal_id" value="GOAL-007"/>
+            <column name="title" value="Число заключенных контрактов"/>
+            <column name="target_value" valueNumeric="5.00"/>
+            <column name="fact_value" valueNumeric="3.00"/>
+            <column name="metric_unit" value="шт."/>
+            <column name="weight" valueNumeric="40.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-22"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-009"/>
+            <column name="goal_id" value="GOAL-007"/>
+            <column name="title" value="Объем выручки по новым контрактам"/>
+            <column name="target_value" valueNumeric="500.00"/>
+            <column name="fact_value" valueNumeric="320.00"/>
+            <column name="metric_unit" value="млн руб."/>
+            <column name="weight" valueNumeric="40.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-22"/>
+        </insert>
+
+        <!-- GOAL-008 KRs (Goal has NO parent) -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-010"/>
+            <column name="goal_id" value="GOAL-008"/>
+            <column name="title" value="Готовность дашборда к промышленной эксплуатации"/>
+            <column name="target_value" valueNumeric="100.00"/>
+            <column name="fact_value" valueNumeric="80.00"/>
+            <column name="metric_unit" value="%"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-23"/>
+        </insert>
+
+        <!-- GOAL-009 KRs: target_value IS NULL (KR_NO_TARGET) -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-011"/>
+            <column name="goal_id" value="GOAL-009"/>
+            <column name="title" value="Количество готовых типовых коробочных продуктов"/>
+            <column name="target_value" valueComputed="NULL"/>
+            <column name="fact_value" valueNumeric="2.00"/>
+            <column name="metric_unit" value="шт."/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-24"/>
+        </insert>
+
+        <!-- GOAL-010 KRs -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-012"/>
+            <column name="goal_id" value="GOAL-010"/>
+            <column name="title" value="Итоговый показатель CSI"/>
+            <column name="target_value" valueNumeric="92.00"/>
+            <column name="fact_value" valueNumeric="90.50"/>
+            <column name="metric_unit" value="%"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-25"/>
+        </insert>
+
+        <!-- GOAL-011 KRs -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-013"/>
+            <column name="goal_id" value="GOAL-011"/>
+            <column name="title" value="Объем факторингового финансирования"/>
+            <column name="target_value" valueNumeric="50.00"/>
+            <column name="fact_value" valueNumeric="44.00"/>
+            <column name="metric_unit" value="млрд руб."/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-23"/>
+        </insert>
+
+        <!-- GOAL-012 KRs -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-014"/>
+            <column name="goal_id" value="GOAL-012"/>
+            <column name="title" value="Число сделок по деривативам"/>
+            <column name="target_value" valueNumeric="30.00"/>
+            <column name="fact_value" valueNumeric="28.00"/>
+            <column name="metric_unit" value="шт."/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-24"/>
+        </insert>
+
+        <!-- GOAL-013 .. GOAL-024 KRs -->
+        <insert tableName="key_results">
+            <column name="id" value="KR-015"/>
+            <column name="goal_id" value="GOAL-013"/>
+            <column name="title" value="Число активных клиентов МСП"/>
+            <column name="target_value" valueNumeric="500000.00"/>
+            <column name="fact_value" valueNumeric="475000.00"/>
+            <column name="metric_unit" value="клиентов"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-25"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-016"/>
+            <column name="goal_id" value="GOAL-014"/>
+            <column name="title" value="Время открытия счета"/>
+            <column name="target_value" valueNumeric="15.00"/>
+            <column name="fact_value" valueNumeric="14.20"/>
+            <column name="metric_unit" value="мин."/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-25"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-017"/>
+            <column name="goal_id" value="GOAL-015"/>
+            <column name="title" value="Объем предодобренных овердрафтов"/>
+            <column name="target_value" valueNumeric="30.00"/>
+            <column name="fact_value" valueNumeric="26.50"/>
+            <column name="metric_unit" value="млрд руб."/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-24"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-018"/>
+            <column name="goal_id" value="GOAL-016"/>
+            <column name="title" value="Доля клиентов с подключенным эквайрингом"/>
+            <column name="target_value" valueNumeric="35.00"/>
+            <column name="fact_value" valueNumeric="32.00"/>
+            <column name="metric_unit" value="%"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-25"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-019"/>
+            <column name="goal_id" value="GOAL-017"/>
+            <column name="title" value="Число пользователей сервиса бухгалтерии"/>
+            <column name="target_value" valueNumeric="80000.00"/>
+            <column name="fact_value" valueNumeric="76000.00"/>
+            <column name="metric_unit" value="пользователей"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-23"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-020"/>
+            <column name="goal_id" value="GOAL-018"/>
+            <column name="title" value="Доля самозанятых с постоянными оборотами"/>
+            <column name="target_value" valueNumeric="40.00"/>
+            <column name="fact_value" valueNumeric="37.50"/>
+            <column name="metric_unit" value="%"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-22"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-021"/>
+            <column name="goal_id" value="GOAL-019"/>
+            <column name="title" value="Портфель кредитования с господдержкой"/>
+            <column name="target_value" valueNumeric="120.00"/>
+            <column name="fact_value" valueNumeric="115.00"/>
+            <column name="metric_unit" value="млрд руб."/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-24"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-022"/>
+            <column name="goal_id" value="GOAL-020"/>
+            <column name="title" value="Доля автоматизированных проверок 115-ФЗ"/>
+            <column name="target_value" valueNumeric="90.00"/>
+            <column name="fact_value" valueNumeric="88.00"/>
+            <column name="metric_unit" value="%"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-25"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-023"/>
+            <column name="goal_id" value="GOAL-021"/>
+            <column name="title" value="Количество привлеченных через партнеров клиентов"/>
+            <column name="target_value" valueNumeric="25000.00"/>
+            <column name="fact_value" valueNumeric="23800.00"/>
+            <column name="metric_unit" value="клиентов"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-25"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-024"/>
+            <column name="goal_id" value="GOAL-022"/>
+            <column name="title" value="Индекс NPS МСП"/>
+            <column name="target_value" valueNumeric="68.00"/>
+            <column name="fact_value" valueNumeric="65.40"/>
+            <column name="metric_unit" value="баллов"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-25"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-025"/>
+            <column name="goal_id" value="GOAL-023"/>
+            <column name="title" value="Количество активных терминалов SoftPOS"/>
+            <column name="target_value" valueNumeric="15000.00"/>
+            <column name="fact_value" valueNumeric="13200.00"/>
+            <column name="metric_unit" value="шт."/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-24"/>
+        </insert>
+        <insert tableName="key_results">
+            <column name="id" value="KR-026"/>
+            <column name="goal_id" value="GOAL-024"/>
+            <column name="title" value="Охват целевой аудитории"/>
+            <column name="target_value" valueNumeric="2500000.00"/>
+            <column name="fact_value" valueNumeric="2300000.00"/>
+            <column name="metric_unit" value="контактов"/>
+            <column name="weight" valueNumeric="100.00"/>
+            <column name="progress_updated_at" valueDate="2026-10-25"/>
+        </insert>
+
+        <!-- Runs: RUN-001 (baseline) and RUN-002 (current) -->
+        <insert tableName="kkd_runs">
+            <column name="id" value="RUN-001"/>
+            <column name="run_no" valueNumeric="1"/>
+            <column name="snapshot_date" valueDate="2026-10-19"/>
+            <column name="status" value="completed"/>
+            <column name="compared_to_run_id" valueComputed="NULL"/>
+            <column name="started_at" valueDate="2026-10-19T03:00:00"/>
+            <column name="finished_at" valueDate="2026-10-19T03:00:12"/>
+        </insert>
+
+        <insert tableName="kkd_runs">
+            <column name="id" value="RUN-002"/>
+            <column name="run_no" valueNumeric="2"/>
+            <column name="snapshot_date" valueDate="2026-10-26"/>
+            <column name="status" value="completed"/>
+            <column name="compared_to_run_id" value="RUN-001"/>
+            <column name="started_at" valueDate="2026-10-26T03:00:00"/>
+            <column name="finished_at" valueDate="2026-10-26T03:00:15"/>
+        </insert>
+
+        <!-- Issues for RUN-001: 5 issues -->
+        <!-- Issue 1: GOAL-005 GOAL_NO_OWNER -->
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-E3A190BC44"/>
+            <column name="run_id" value="RUN-001"/>
+            <column name="fingerprint" value="GOAL_NO_OWNER:GOAL-005"/>
+            <column name="rule_code" value="GOAL_NO_OWNER"/>
+            <column name="severity" value="critical"/>
+            <column name="object_type" value="goal"/>
+            <column name="object_id" value="GOAL-005"/>
+            <column name="goal_id" value="GOAL-005"/>
+            <column name="kr_id" valueComputed="NULL"/>
+            <column name="unit_id" value="HQ-CIB"/>
+            <column name="owner_id" valueComputed="NULL"/>
+            <column name="owner_name" valueComputed="NULL"/>
+            <column name="details" value="Поле «Ответственный» не заполнено"/>
+            <column name="actual_value" valueComputed="NULL"/>
+            <column name="expected_value" value="сотрудник"/>
+            <column name="recommendation" value="Назначить ответственного за цель в модуле «Цели»."/>
+            <column name="delta_status" value="new"/>
+            <column name="runs_in_row" valueNumeric="1"/>
+        </insert>
+        <!-- Issue 2: GOAL-006 GOAL_NO_KR -->
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-78F91B20A1"/>
+            <column name="run_id" value="RUN-001"/>
+            <column name="fingerprint" value="GOAL_NO_KR:GOAL-006"/>
+            <column name="rule_code" value="GOAL_NO_KR"/>
+            <column name="severity" value="critical"/>
+            <column name="object_type" value="goal"/>
+            <column name="object_id" value="GOAL-006"/>
+            <column name="goal_id" value="GOAL-006"/>
+            <column name="kr_id" valueComputed="NULL"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1005"/>
+            <column name="owner_name" value="Соколов Андрей Владимирович"/>
+            <column name="details" value="У активной цели 0 ключевых результатов"/>
+            <column name="actual_value" value="0"/>
+            <column name="expected_value" value="&gt;= 1"/>
+            <column name="recommendation" value="Добавить 1–5 измеримых ключевых результатов."/>
+            <column name="delta_status" value="new"/>
+            <column name="runs_in_row" valueNumeric="1"/>
+        </insert>
+        <!-- Issue 3: GOAL-007 KR_WEIGHTS_SUM -->
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-20B19F47C3"/>
+            <column name="run_id" value="RUN-001"/>
+            <column name="fingerprint" value="KR_WEIGHTS_SUM:GOAL-007"/>
+            <column name="rule_code" value="KR_WEIGHTS_SUM"/>
+            <column name="severity" value="major"/>
+            <column name="object_type" value="goal"/>
+            <column name="object_id" value="GOAL-007"/>
+            <column name="goal_id" value="GOAL-007"/>
+            <column name="kr_id" valueComputed="NULL"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1006"/>
+            <column name="owner_name" value="Попова Екатерина Ильинична"/>
+            <column name="details" value="Сумма весов КР = 80%, ожидается 100%"/>
+            <column name="actual_value" value="80"/>
+            <column name="expected_value" value="100"/>
+            <column name="recommendation" value="Перераспределить веса КР так, чтобы сумма была ровно 100%."/>
+            <column name="delta_status" value="new"/>
+            <column name="runs_in_row" valueNumeric="1"/>
+        </insert>
+        <!-- Issue 4: GOAL-008 CASCADE_NO_PARENT -->
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-9C51D2EA10"/>
+            <column name="run_id" value="RUN-001"/>
+            <column name="fingerprint" value="CASCADE_NO_PARENT:GOAL-008"/>
+            <column name="rule_code" value="CASCADE_NO_PARENT"/>
+            <column name="severity" value="major"/>
+            <column name="object_type" value="goal"/>
+            <column name="object_id" value="GOAL-008"/>
+            <column name="goal_id" value="GOAL-008"/>
+            <column name="kr_id" valueComputed="NULL"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1007"/>
+            <column name="owner_name" value="Васильев Роман Сергеевич"/>
+            <column name="details" value="Родительская цель вышестоящего уровня не указана"/>
+            <column name="actual_value" valueComputed="NULL"/>
+            <column name="expected_value" value="цель вышестоящего уровня"/>
+            <column name="recommendation" value="Указать родительскую цель вышестоящего уровня."/>
+            <column name="delta_status" value="new"/>
+            <column name="runs_in_row" valueNumeric="1"/>
+        </insert>
+        <!-- Issue 5: GOAL-016 CASCADE_NO_PARENT in RUN-001, fixed in RUN-002! -->
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-F415AB3991"/>
+            <column name="run_id" value="RUN-001"/>
+            <column name="fingerprint" value="CASCADE_NO_PARENT:GOAL-016"/>
+            <column name="rule_code" value="CASCADE_NO_PARENT"/>
+            <column name="severity" value="major"/>
+            <column name="object_type" value="goal"/>
+            <column name="object_id" value="GOAL-016"/>
+            <column name="goal_id" value="GOAL-016"/>
+            <column name="kr_id" valueComputed="NULL"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2004"/>
+            <column name="owner_name" value="Лазарев Максим Борисович"/>
+            <column name="details" value="Родительская цель не была указана в RUN-001"/>
+            <column name="actual_value" valueComputed="NULL"/>
+            <column name="expected_value" value="цель вышестоящего уровня"/>
+            <column name="recommendation" value="Указать родительскую цель вышестоящего уровня."/>
+            <column name="delta_status" value="new"/>
+            <column name="runs_in_row" valueNumeric="1"/>
+        </insert>
+
+        <!-- Issues for RUN-002: 4 persisting, 1 new, 1 resolved (from RUN-001) -->
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-E3A190BC44"/>
+            <column name="run_id" value="RUN-002"/>
+            <column name="fingerprint" value="GOAL_NO_OWNER:GOAL-005"/>
+            <column name="rule_code" value="GOAL_NO_OWNER"/>
+            <column name="severity" value="critical"/>
+            <column name="object_type" value="goal"/>
+            <column name="object_id" value="GOAL-005"/>
+            <column name="goal_id" value="GOAL-005"/>
+            <column name="kr_id" valueComputed="NULL"/>
+            <column name="unit_id" value="HQ-CIB"/>
+            <column name="owner_id" valueComputed="NULL"/>
+            <column name="owner_name" valueComputed="NULL"/>
+            <column name="details" value="Поле «Ответственный» не заполнено"/>
+            <column name="actual_value" valueComputed="NULL"/>
+            <column name="expected_value" value="сотрудник"/>
+            <column name="recommendation" value="Назначить ответственного за цель в модуле «Цели»."/>
+            <column name="delta_status" value="persisting"/>
+            <column name="runs_in_row" valueNumeric="2"/>
+        </insert>
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-78F91B20A1"/>
+            <column name="run_id" value="RUN-002"/>
+            <column name="fingerprint" value="GOAL_NO_KR:GOAL-006"/>
+            <column name="rule_code" value="GOAL_NO_KR"/>
+            <column name="severity" value="critical"/>
+            <column name="object_type" value="goal"/>
+            <column name="object_id" value="GOAL-006"/>
+            <column name="goal_id" value="GOAL-006"/>
+            <column name="kr_id" valueComputed="NULL"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1005"/>
+            <column name="owner_name" value="Соколов Андрей Владимирович"/>
+            <column name="details" value="У активной цели 0 ключевых результатов"/>
+            <column name="actual_value" value="0"/>
+            <column name="expected_value" value="&gt;= 1"/>
+            <column name="recommendation" value="Добавить 1–5 измеримых ключевых результатов."/>
+            <column name="delta_status" value="persisting"/>
+            <column name="runs_in_row" valueNumeric="2"/>
+        </insert>
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-20B19F47C3"/>
+            <column name="run_id" value="RUN-002"/>
+            <column name="fingerprint" value="KR_WEIGHTS_SUM:GOAL-007"/>
+            <column name="rule_code" value="KR_WEIGHTS_SUM"/>
+            <column name="severity" value="major"/>
+            <column name="object_type" value="goal"/>
+            <column name="object_id" value="GOAL-007"/>
+            <column name="goal_id" value="GOAL-007"/>
+            <column name="kr_id" valueComputed="NULL"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1006"/>
+            <column name="owner_name" value="Попова Екатерина Ильинична"/>
+            <column name="details" value="Сумма весов КР = 80%, ожидается 100%"/>
+            <column name="actual_value" value="80"/>
+            <column name="expected_value" value="100"/>
+            <column name="recommendation" value="Перераспределить веса КР так, чтобы сумма была ровно 100%."/>
+            <column name="delta_status" value="persisting"/>
+            <column name="runs_in_row" valueNumeric="2"/>
+        </insert>
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-9C51D2EA10"/>
+            <column name="run_id" value="RUN-002"/>
+            <column name="fingerprint" value="CASCADE_NO_PARENT:GOAL-008"/>
+            <column name="rule_code" value="CASCADE_NO_PARENT"/>
+            <column name="severity" value="major"/>
+            <column name="object_type" value="goal"/>
+            <column name="object_id" value="GOAL-008"/>
+            <column name="goal_id" value="GOAL-008"/>
+            <column name="kr_id" valueComputed="NULL"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1007"/>
+            <column name="owner_name" value="Васильев Роман Сергеевич"/>
+            <column name="details" value="Родительская цель вышестоящего уровня не указана"/>
+            <column name="actual_value" valueComputed="NULL"/>
+            <column name="expected_value" value="цель вышестоящего уровня"/>
+            <column name="recommendation" value="Указать родительскую цель вышестоящего уровня."/>
+            <column name="delta_status" value="persisting"/>
+            <column name="runs_in_row" valueNumeric="2"/>
+        </insert>
+        <!-- New issue in RUN-002: KR_NO_TARGET on KR-011 -->
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-38B10CA711"/>
+            <column name="run_id" value="RUN-002"/>
+            <column name="fingerprint" value="KR_NO_TARGET:KR-011"/>
+            <column name="rule_code" value="KR_NO_TARGET"/>
+            <column name="severity" value="major"/>
+            <column name="object_type" value="key_result"/>
+            <column name="object_id" value="KR-011"/>
+            <column name="goal_id" value="GOAL-009"/>
+            <column name="kr_id" value="KR-011"/>
+            <column name="unit_id" value="CIB-KEY"/>
+            <column name="owner_id" value="EMP-1008"/>
+            <column name="owner_name" value="Новиков Павел Анатольевич"/>
+            <column name="details" value="Целевое значение не заполнено"/>
+            <column name="actual_value" valueComputed="NULL"/>
+            <column name="expected_value" value="число"/>
+            <column name="recommendation" value="Заполнить целевое значение КР."/>
+            <column name="delta_status" value="new"/>
+            <column name="runs_in_row" valueNumeric="1"/>
+        </insert>
+        <!-- Resolved issue record for GOAL-016 in RUN-002 (fixed since RUN-001) -->
+        <insert tableName="kkd_issues">
+            <column name="id" value="ISS-F415AB3991"/>
+            <column name="run_id" value="RUN-002"/>
+            <column name="fingerprint" value="CASCADE_NO_PARENT:GOAL-016"/>
+            <column name="rule_code" value="CASCADE_NO_PARENT"/>
+            <column name="severity" value="major"/>
+            <column name="object_type" value="goal"/>
+            <column name="object_id" value="GOAL-016"/>
+            <column name="goal_id" value="GOAL-016"/>
+            <column name="kr_id" valueComputed="NULL"/>
+            <column name="unit_id" value="HQ-SME"/>
+            <column name="owner_id" value="EMP-2004"/>
+            <column name="owner_name" value="Лазарев Максим Борисович"/>
+            <column name="details" value="Проблема устранена: родительская цель успешно привязана"/>
+            <column name="actual_value" value="GOAL-001"/>
+            <column name="expected_value" value="цель вышестоящего уровня"/>
+            <column name="recommendation" value="Нарушение исправлено."/>
+            <column name="delta_status" value="resolved"/>
+            <column name="runs_in_row" valueNumeric="0"/>
+        </insert>
+
+        <!-- Rollback for seed data -->
+        <rollback>
+            <delete tableName="kkd_issues"/>
+            <delete tableName="kkd_runs"/>
+            <delete tableName="key_results"/>
+            <delete tableName="goals"/>
+            <delete tableName="organizational_units"/>
+            <delete tableName="kkd_rules"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
