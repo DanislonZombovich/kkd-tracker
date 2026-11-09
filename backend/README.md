@@ -91,10 +91,10 @@ mvn liquibase:update
 |---|---|---|
 | `GET` | `/api/runs?limit=&offset=` | Список прогонов: статус, дата снимка, база сравнения, счётчики дефектов |
 | `GET` | `/api/runs/{runId}` | Детали прогона |
-| `GET` | `/api/kkd/summary?run_id=&unit_id=` | Сводка качества данных подразделения: метрики, дельта, тренд, дефекты по важности |
-| `GET` | `/api/kkd/issues?run_id=&unit_id=&rule_code=&severity=&delta_status=&limit=&offset=` | Список проблем снимка с фильтрацией и пагинацией |
-| `GET` | `/api/kkd/issues/{issueId}?run_id=` | Карточка проблемы с историей по прогонам (`history`) |
-| `GET` | `/api/meta` | Справочник оргструктуры, правил, уровней важности и статусов дельты |
+| `GET` | `/api/kkd/summary?run_id=&unit_id=` | Сводка качества данных подразделения: метрики, дельта, тренд, дефекты по важности и по правилам (`issues_by_rule`) |
+| `GET` | `/api/kkd/issues?run_id=&unit_id=&rule_code=&severity=&delta_status=&q=&sort=&limit=&offset=` | Список проблем снимка с полнотекстовым поиском `q`, сортировкой и фильтрацией (по умолчанию отдаются только активные дефекты `new`/`persisting`) |
+| `GET` | `/api/kkd/issues/{issueId}?run_id=` | Карточка проблемы с честной историей по прогонам (`history`) |
+| `GET` | `/api/meta` | Справочник оргструктуры (с `parent_id: null` для корня), правил, важностей, уровней целей, метрик и статусов дельты |
 
 ---
 

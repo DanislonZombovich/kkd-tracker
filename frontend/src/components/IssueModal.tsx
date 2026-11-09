@@ -4,6 +4,7 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   ExclamationCircleOutlined,
+  WarningOutlined,
   BulbOutlined,
   HistoryOutlined,
 } from '@ant-design/icons';
@@ -153,26 +154,36 @@ export const IssueModal: React.FC<IssueModalProps> = ({ issue, open, onClose }) 
             </div>
 
             <Timeline
-              items={issue.history.map((h) => ({
-                color: h.present ? 'red' : 'green',
-                dot: h.present ? (
-                  <ExclamationCircleOutlined style={{ fontSize: 13 }} />
-                ) : (
-                  <CheckCircleOutlined style={{ fontSize: 13 }} />
-                ),
-                children: (
-                  <div>
-                    <Text strong style={{ color: '#312921' }}>
-                      {h.run_id} ({h.snapshot_date}):
-                    </Text>{' '}
-                    {h.present ? (
-                      <Text type="danger">Дефект зафиксирован</Text>
-                    ) : (
-                      <Text type="success">Дефект отсутствует (исправлен)</Text>
-                    )}
-                  </div>
-                ),
-              }))}
+              items={issue.history.map((h) => {
+                const isFailed = h.run_status === 'failed' || h.present === null;
+                const isPresent = h.present === true;
+                return {
+                  color: isPresent ? 'red' : isFailed ? 'gray' : 'green',
+                  dot: isPresent ? (
+                    <ExclamationCircleOutlined style={{ fontSize: 13 }} />
+                  ) : isFailed ? (
+                    <WarningOutlined style={{ fontSize: 13, color: '#faad14' }} />
+                  ) : (
+                    <CheckCircleOutlined style={{ fontSize: 13 }} />
+                  ),
+                  children: (
+                    <div>
+                      <Text strong style={{ color: '#312921' }}>
+                        {h.run_id} ({h.snapshot_date}):
+                      </Text>{' '}
+                      {isPresent ? (
+                        <Text type="danger">Дефект зафиксирован</Text>
+                      ) : isFailed ? (
+                        <Text style={{ color: '#76726C', fontStyle: 'italic' }}>
+                          Прогон завершился с ошибкой (данные отсутствуют)
+                        </Text>
+                      ) : (
+                        <Text type="success">Дефект отсутствует (исправлен)</Text>
+                      )}
+                    </div>
+                  ),
+                };
+              })}
             />
           </div>
         )}

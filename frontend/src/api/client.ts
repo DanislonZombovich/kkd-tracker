@@ -34,6 +34,7 @@ export const kkdApi = {
       limit?: number;
       offset?: number;
       q?: string;
+      sort?: string;
     } = {}
   ): Promise<IssuesResponse> {
     const res = await api.get('/api/kkd/issues', {

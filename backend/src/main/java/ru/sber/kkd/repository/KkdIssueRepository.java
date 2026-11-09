@@ -22,15 +22,24 @@ public interface KkdIssueRepository extends JpaRepository<KkdIssueEntity, KkdIss
            "AND (:unitIds IS NULL OR i.unitId IN :unitIds) " +
            "AND (:ruleCodes IS NULL OR i.ruleCode IN :ruleCodes) " +
            "AND (:severities IS NULL OR i.severity IN :severities) " +
-           "AND (:deltaStatuses IS NULL OR i.deltaStatus IN :deltaStatuses)")
+           "AND (:deltaStatuses IS NULL OR i.deltaStatus IN :deltaStatuses) " +
+           "AND (:q IS NULL OR (" +
+           "  LOWER(i.goalId) LIKE :q OR " +
+           "  LOWER(i.objectId) LIKE :q OR " +
+           "  (i.krId IS NOT NULL AND LOWER(i.krId) LIKE :q) OR " +
+           "  (i.ownerName IS NOT NULL AND LOWER(i.ownerName) LIKE :q) OR " +
+           "  LOWER(i.details) LIKE :q" +
+           "))")
     Page<KkdIssueEntity> findWithFilters(
             @Param("runId") String runId,
             @Param("unitIds") Collection<String> unitIds,
             @Param("ruleCodes") Collection<String> ruleCodes,
             @Param("severities") Collection<String> severities,
             @Param("deltaStatuses") Collection<String> deltaStatuses,
+            @Param("q") String q,
             Pageable pageable
     );
 
-    List<KkdIssueEntity> findById(String id);
+    @Query("SELECT i FROM KkdIssueEntity i WHERE i.id = :id")
+    List<KkdIssueEntity> findAllByIssueId(@Param("id") String id);
 }

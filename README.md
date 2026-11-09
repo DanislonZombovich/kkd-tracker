@@ -95,7 +95,7 @@ kkd_tracker/
 │   ├── src/main/resources/
 │   │   ├── application.yml                # Профиль PostgreSQL / Prod
 │   │   └── db/changelog/                  # Liquibase миграции с секциями <rollback>
-│   └── src/test/                          # 22 теста (JUnit 5): правила, метрики, дельта, откат Liquibase
+│   └── src/test/                          # 33 теста (JUnit 5): правила, метрики, дельта, эндпоинты, откат Liquibase
 ├── frontend/                              # SPA на React 18 / TypeScript / Ant Design 5
 │   ├── package.json
 │   ├── Dockerfile
@@ -159,14 +159,15 @@ kkd_tracker/
   - `KkdRuleEngine` принимает `KkdExecutionContext` и выполняет набор независимых правил (`KkdRule`).
 - **REST Контроллеры:**
   - `GET /api/runs` — список запусков ККД с агрегированными счетчиками.
-  - `GET /api/meta` — справочник подразделений с родительскими связями.
-  - `GET /api/kkd/summary?run_id=...&unit_id=...` — сводные метрики, динамика трендов и разбивка дельты.
-  - `GET /api/kkd/issues` — пагинированный список проблем с фильтрацией по правилу, критичности, статусу дельты.
-  - `GET /api/kkd/issues/{id}` — карточка проблемы с историей по прогонам.
-- **Тесты (22 теста JUnit 5, 100% pass):**
-  - Юнит-тесты изолированных правил (`KrWeightsSumRuleTest`, `GoalNoOwnerRuleTest`, `CascadeNoParentRuleTest`).
+  - `GET /api/meta` — справочник подразделений с родительскими связями (`parent_id: null` для корня), метриками и уровнями целей.
+  - `GET /api/kkd/summary?run_id=...&unit_id=...` — сводные метрики, динамика трендов, разбивка дельты и `issues_by_rule`.
+  - `GET /api/kkd/issues` — пагинированный список проблем с поиском `q`, сортировкой `sort`, фильтрацией по правилу, критичности, статусу дельты (по умолчанию исключаются `resolved`).
+  - `GET /api/kkd/issues/{id}` — карточка проблемы с историей по прогонам и корректным учетом сбойных прогонов (`failed`).
+- **Тесты (33 теста JUnit 5, 100% pass):**
+  - Юнит-тесты изолированных правил (`GoalNoOwnerRuleTest`, `GoalNoKrRuleTest`, `KrWeightsSumRuleTest`, `CascadeNoParentRuleTest`, `KrNoTargetRuleTest`, `KrStaleProgressRuleTest`).
   - Тесты метрик и обхода иерархии (`MetricServiceTest`).
   - Тесты сопоставления дельты (`DeltaServiceTest`).
+  - Интеграционные тесты REST API (`KkdApplicationTests`): выборка по умолчанию без `resolved`, фильтрация по `delta_status=resolved`, поиск `q`, карточка замечания с историей, метаданные.
   - Тест миграций: **накат → откат → повторный накат** (`LiquibaseRollbackTest`).
 
 ---

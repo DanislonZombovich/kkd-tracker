@@ -28,10 +28,14 @@
 3. **Иерархическая агрегация:**
    - Построение графа подразделений через `HierarchyService.getDescendantsOrSelf()`.
    - Выборка целей и нарушений по множеству `IN :scopeUnitIds` за один запрос.
-4. **Обработка граничных состояний:**
+4. **Фильтрация и поиск проблем (`/api/kkd/issues`):**
+   - Полнотекстовый поиск `q` по ID и названиям целей, КР, деталям и ФИО ответственного.
+   - Честная дельта: по умолчанию исключаются `resolved` дефекты, которые отображаются только при явном запросе `delta_status=resolved`.
+   - Сортировка `sort`: по важности (`severity`), коду правила (`rule`), подразделению (`unit`), возрасту (`age`) или ID.
+5. **Обработка граничных состояний:**
    - Пустое подразделение (`TX-NEW`): метрики корректно возвращают `null` вместо деления на ноль.
    - Первый прогон (`RUN-001`): `compared_to_run_id` отсутствует, `previous` и `delta` возвращают `null`.
-   - Неуспешный прогон (`status='failed'`): возвращает `HTTP 409 RUN_FAILED`.
+   - Неуспешный прогон (`status='failed'`): возвращает `HTTP 409 RUN_FAILED`, а в истории фиксации дефекта признак `present` строго равен `null` (не false).
 
 ## 3. Схема базы данных
 - `organizational_units` (id, name, level, parent_id, depth)
@@ -40,3 +44,4 @@
 - `kkd_rules` (code, object_type, severity, title, description, recommendation)
 - `kkd_runs` (id, run_no, snapshot_date, status, compared_to_run_id, started_at, finished_at)
 - `kkd_issues` (run_id, id, fingerprint, rule_code, severity, object_type, object_id, goal_id, kr_id, unit_id, owner_id, owner_name, details, actual_value, expected_value, recommendation, delta_status, runs_in_row)
+- Внешние ключи на `parent_id` и `compared_to_run_id` снабжены `onDelete="CASCADE"`, а откат таблиц Liquibase — `cascadeConstraints="true"`.

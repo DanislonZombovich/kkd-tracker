@@ -46,6 +46,16 @@ export interface DeltaCount {
   resolved: number | null;
 }
 
+export interface RuleCount {
+  code: string;
+  title: string;
+  severity: string;
+  object_type?: string;
+  current: number;
+  previous: number | null;
+  delta: number | null;
+}
+
 export interface SummaryResponse {
   run: {
     id: string;
@@ -67,6 +77,7 @@ export interface SummaryResponse {
   };
   metrics: MetricItem[];
   issues_by_severity: SeverityCount[];
+  issues_by_rule?: RuleCount[];
   delta: DeltaCount;
 }
 

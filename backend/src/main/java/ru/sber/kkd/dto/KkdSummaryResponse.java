@@ -26,6 +26,9 @@ public class KkdSummaryResponse {
     @JsonProperty("issues_by_severity")
     private List<SeveritySummaryDto> issuesBySeverity;
 
+    @JsonProperty("issues_by_rule")
+    private List<RuleSummaryDto> issuesByRule;
+
     private DeltaSummaryDto delta;
 
     @Data

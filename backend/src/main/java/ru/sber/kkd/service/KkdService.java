@@ -18,6 +18,7 @@ public class KkdService {
     private final OrganizationalUnitRepository unitRepository;
     private final GoalRepository goalRepository;
     private final KkdIssueRepository issueRepository;
+    private final KkdRuleRepository ruleRepository;
     private final HierarchyService hierarchyService;
     private final MetricService metricService;
     private final DeltaService deltaService;
@@ -27,6 +28,7 @@ public class KkdService {
             OrganizationalUnitRepository unitRepository,
             GoalRepository goalRepository,
             KkdIssueRepository issueRepository,
+            KkdRuleRepository ruleRepository,
             HierarchyService hierarchyService,
             MetricService metricService,
             DeltaService deltaService
@@ -35,6 +37,7 @@ public class KkdService {
         this.unitRepository = unitRepository;
         this.goalRepository = goalRepository;
         this.issueRepository = issueRepository;
+        this.ruleRepository = ruleRepository;
         this.hierarchyService = hierarchyService;
         this.metricService = metricService;
         this.deltaService = deltaService;
@@ -92,6 +95,7 @@ public class KkdService {
         );
 
         List<SeveritySummaryDto> severitySummaries = computeSeveritySummary(currentIssues, prevIssues, hasComparison);
+        List<RuleSummaryDto> ruleSummaries = computeRuleSummary(currentIssues, prevIssues, hasComparison);
         DeltaSummaryDto delta = deltaService.calculateDelta(currentIssues, prevIssues, hasComparison);
 
         return KkdSummaryResponse.builder()
@@ -116,6 +120,7 @@ public class KkdService {
                         .build())
                 .metrics(metrics)
                 .issuesBySeverity(severitySummaries)
+                .issuesByRule(ruleSummaries)
                 .delta(delta)
                 .build();
     }
@@ -165,12 +170,55 @@ public class KkdService {
         return map;
     }
 
+    private List<RuleSummaryDto> computeRuleSummary(
+            List<KkdIssueEntity> curIssues,
+            List<KkdIssueEntity> prevIssues,
+            boolean hasComparison
+    ) {
+        List<RuleSummaryDto> result = new ArrayList<>();
+        List<KkdRuleEntity> rules = ruleRepository.findAll();
+
+        Map<String, Integer> curCounts = countByRule(curIssues);
+        Map<String, Integer> prevCounts = hasComparison ? countByRule(prevIssues) : null;
+
+        for (KkdRuleEntity r : rules) {
+            int cur = curCounts.getOrDefault(r.getCode(), 0);
+            Integer prev = prevCounts != null ? prevCounts.getOrDefault(r.getCode(), 0) : null;
+            Integer delta = prev != null ? (cur - prev) : null;
+
+            result.add(RuleSummaryDto.builder()
+                    .code(r.getCode())
+                    .title(r.getTitle())
+                    .severity(r.getSeverity())
+                    .objectType(r.getObjectType())
+                    .current(cur)
+                    .previous(prev)
+                    .delta(delta)
+                    .build());
+        }
+        return result;
+    }
+
+    private Map<String, Integer> countByRule(List<KkdIssueEntity> issues) {
+        Map<String, Integer> map = new HashMap<>();
+        if (issues != null) {
+            for (KkdIssueEntity i : issues) {
+                if (!"resolved".equalsIgnoreCase(i.getDeltaStatus())) {
+                    map.merge(i.getRuleCode(), 1, Integer::sum);
+                }
+            }
+        }
+        return map;
+    }
+
     public KkdIssuesResponse getIssues(
             String runId,
             String unitId,
             String ruleCode,
             String severity,
             String deltaStatus,
+            String q,
+            String sort,
             int limit,
             int offset
     ) {
@@ -189,8 +237,24 @@ public class KkdService {
         Set<String> severities = parseCsv(severity);
         Set<String> deltaStatuses = parseCsv(deltaStatus);
 
+        // По умолчанию (если статус не указан) отображаются только активные проблемы (new, persisting).
+        // Исправленные проблемы (resolved) отдаются только при явном указании delta_status=resolved.
+        if (deltaStatuses == null) {
+            deltaStatuses = Set.of("new", "persisting");
+        }
+
+        String qPattern = (q != null && !q.isBlank()) ? "%" + q.trim().toLowerCase() + "%" : null;
+
+        Sort sortOrder = switch (sort != null ? sort.trim().toLowerCase() : "id") {
+            case "severity" -> Sort.by(Sort.Direction.ASC, "severity");
+            case "rule" -> Sort.by(Sort.Direction.ASC, "ruleCode");
+            case "unit" -> Sort.by(Sort.Direction.ASC, "unitId");
+            case "age" -> Sort.by(Sort.Direction.DESC, "runsInRow");
+            default -> Sort.by(Sort.Direction.ASC, "id");
+        };
+
         int pageNumber = offset / limit;
-        PageRequest pageRequest = PageRequest.of(pageNumber, limit, Sort.by("id").ascending());
+        PageRequest pageRequest = PageRequest.of(pageNumber, limit, sortOrder);
 
         Page<KkdIssueEntity> page = issueRepository.findWithFilters(
                 run.getId(),
@@ -198,6 +262,7 @@ public class KkdService {
                 ruleCodes,
                 severities,
                 deltaStatuses,
+                qPattern,
                 pageRequest
         );
 
@@ -216,7 +281,7 @@ public class KkdService {
 
     public IssueItemDto getIssueById(String issueId, String runId) {
         KkdRun run = resolveCompletedRun(runId);
-        List<KkdIssueEntity> matches = issueRepository.findById(issueId);
+        List<KkdIssueEntity> matches = issueRepository.findAllByIssueId(issueId);
         KkdIssueEntity currentIssue = matches.stream()
                 .filter(i -> i.getRunId().equalsIgnoreCase(run.getId()))
                 .findFirst()
@@ -232,8 +297,12 @@ public class KkdService {
             if (r.getRunNo() > run.getRunNo()) {
                 break;
             }
-            boolean present = matches.stream()
-                    .anyMatch(m -> m.getRunId().equalsIgnoreCase(r.getId()) && !"resolved".equalsIgnoreCase(m.getDeltaStatus()));
+            Boolean present = null;
+            if ("completed".equalsIgnoreCase(r.getStatus())) {
+                boolean isPresent = matches.stream()
+                        .anyMatch(m -> m.getRunId().equalsIgnoreCase(r.getId()) && !"resolved".equalsIgnoreCase(m.getDeltaStatus()));
+                present = isPresent;
+            }
 
             history.add(IssueItemDto.HistoryItemDto.builder()
                     .runId(r.getId())

@@ -31,10 +31,12 @@ public class KkdController {
             @RequestParam(name = "rule_code", required = false) String ruleCode,
             @RequestParam(name = "severity", required = false) String severity,
             @RequestParam(name = "delta_status", required = false) String deltaStatus,
+            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(name = "sort", defaultValue = "id") String sort,
             @RequestParam(defaultValue = "20") int limit,
             @RequestParam(defaultValue = "0") int offset
     ) {
-        return kkdService.getIssues(runId, unitId, ruleCode, severity, deltaStatus, limit, offset);
+        return kkdService.getIssues(runId, unitId, ruleCode, severity, deltaStatus, q, sort, limit, offset);
     }
 
     @GetMapping("/issues/{issueId}")
