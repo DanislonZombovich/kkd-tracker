@@ -1,5 +1,6 @@
 # Модуль контроля качества данных (ККД) по целям сотрудников
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Cloudflare_Pages-F38020.svg?logo=cloudflare&logoColor=white)](https://kkd-tracker-demo.pages.dev)
 [![Java 21](https://img.shields.io/badge/Java-21-orange.svg?logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot 3.3.5](https://img.shields.io/badge/Spring_Boot-3.3.5-brightgreen.svg?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![React 18](https://img.shields.io/badge/React-18-blue.svg?logo=react&logoColor=white)](https://react.dev/)
@@ -8,6 +9,10 @@
 [![Liquibase](https://img.shields.io/badge/Liquibase-Migrate-red.svg?logo=liquibase&logoColor=white)](https://www.liquibase.org/)
 [![Ant Design 5](https://img.shields.io/badge/Ant_Design-5.21-0170FE.svg?logo=antdesign&logoColor=white)](https://ant.design/)
 [![Docker Compose](https://img.shields.io/badge/Docker-Compose-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+
+> 🌐 **Интерактивный демонстрационный стенд (Live Demo):**  
+> **[https://kkd-tracker-demo.pages.dev](https://kkd-tracker-demo.pages.dev)**  
+> *(Развернут на Cloudflare Pages с Edge Functions для мгновенного онлайн-просмотра интерфейса, переключения срезов, проверки граничных состояний и карточек дефектов)*
 
 Комплексное решение тестового задания по проекту **«Автотрекинг целей B2B+»** (автоматизация процедуры контроля качества данных по целям и ключевым результатам сотрудников) по всем 4 проектным направлениям:
 1. **BA (Бизнес-анализ)**

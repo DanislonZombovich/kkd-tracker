@@ -915,9 +915,9 @@
         <!-- Rollback for seed data -->
         <rollback>
             <delete tableName="kkd_issues"/>
-            <delete tableName="kkd_runs"/>
             <delete tableName="key_results"/>
             <delete tableName="goals"/>
+            <delete tableName="kkd_runs"/>
             <delete tableName="organizational_units"/>
             <delete tableName="kkd_rules"/>
         </rollback>

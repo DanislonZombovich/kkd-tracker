@@ -27,7 +27,8 @@
 
         <addForeignKeyConstraint baseTableName="organizational_units" baseColumnNames="parent_id"
                                  constraintName="fk_units_parent"
-                                 referencedTableName="organizational_units" referencedColumnNames="id"/>
+                                 referencedTableName="organizational_units" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
 
         <!-- 2. goals -->
         <createTable tableName="goals">
@@ -62,7 +63,8 @@
 
         <addForeignKeyConstraint baseTableName="goals" baseColumnNames="parent_id"
                                  constraintName="fk_goals_parent"
-                                 referencedTableName="goals" referencedColumnNames="id"/>
+                                 referencedTableName="goals" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
 
         <!-- 3. key_results -->
         <createTable tableName="key_results">
@@ -138,7 +140,8 @@
 
         <addForeignKeyConstraint baseTableName="kkd_runs" baseColumnNames="compared_to_run_id"
                                  constraintName="fk_runs_compared"
-                                 referencedTableName="kkd_runs" referencedColumnNames="id"/>
+                                 referencedTableName="kkd_runs" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
 
         <!-- 6. kkd_issues -->
         <createTable tableName="kkd_issues">
@@ -216,12 +219,12 @@
 
         <!-- Rollback statements to enable clean rollback -> reapply -->
         <rollback>
-            <dropTable tableName="kkd_issues"/>
-            <dropTable tableName="kkd_runs"/>
-            <dropTable tableName="kkd_rules"/>
-            <dropTable tableName="key_results"/>
-            <dropTable tableName="goals"/>
-            <dropTable tableName="organizational_units"/>
+            <dropTable tableName="kkd_issues" cascadeConstraints="true"/>
+            <dropTable tableName="kkd_runs" cascadeConstraints="true"/>
+            <dropTable tableName="kkd_rules" cascadeConstraints="true"/>
+            <dropTable tableName="key_results" cascadeConstraints="true"/>
+            <dropTable tableName="goals" cascadeConstraints="true"/>
+            <dropTable tableName="organizational_units" cascadeConstraints="true"/>
         </rollback>
     </changeSet>
 
